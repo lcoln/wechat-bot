@@ -1,7 +1,8 @@
 {
   "extends": "@chatie/tsconfig",
   "compilerOptions": {
-    "outDir": "dist"
+    "outDir": "dist",
+    // "module": "CommonJS", //指定生成哪个模块系统代码
   },
   "exclude": [
     "node_modules/",

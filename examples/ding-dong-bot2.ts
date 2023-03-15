@@ -46,7 +46,7 @@ function onLogout (user: Contact) {
   log.info('StarterBot', '%s logout', user)
 }
 
-let list: {[key: string]: {isLoading: boolean, msg: object[]}} = {}
+let list: {[key: string]: boolean} = {}
 let isReady = false
 
 function onReady (res){
@@ -97,27 +97,18 @@ async function onMessage (msg: Message) {
 
     // 在群里并且被@ 或者 聊天
     if ((topic && mention) || !topic) {
-      if (list[key]?.isLoading) {
+      if (list[key]) {
         return await msg.say('正在思考🤔中，请稍候')
       }
-      // list[key] = true
+      list[key] = true
 
       await msg.say('请容我三思🤔')
       let uri = requestImage1 ? 'image' : (requestImage2 ? 'txaiart' : 'sayU')
-
-      if (uri === 'sayU') {
-        const p = {"role": "user", "content": text}
-        if (!list[key]) {
-          list[key] = {
-            msg: [p],
-            isLoading: true
-          }
-        } else {
-          list[key].msg.push(p)
-        }
-      } 
-      const params = uri === 'sayU' ? {message: list[key].msg} : {prompt: text}
-
+      const params = uri === 'sayU' ? {
+        "message": [
+          {"role": "user", "content": text}
+        ]
+      } : {prompt: text}
       console.log(`${API}/zyj/${uri}`, 99999)
       
       let response = await fetch(`${API}/zyj/${uri}`, {
@@ -152,13 +143,12 @@ async function onMessage (msg: Message) {
             await msg.say(data)
           }
         }
-        list[key].isLoading = false
       } catch (e) {
-        list[key].isLoading = false
+        list[key] = false
       }
-      list[key].isLoading = false
+      list[key] = false
     }
   } else {
-    list[key] = {msg:[], isLoading: false}
+    list[key] = false
   }
 }
